@@ -1,0 +1,20 @@
+{
+  "name": "Adwerto — پلتفرم تبلیغات دیجیتال",
+  "short_name": "Adwerto",
+  "description": "پلتفرم هوشمند خرید و فروش فضای تبلیغاتی در شبکه‌های اجتماعی و وب‌سایت‌ها.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07070d",
+  "theme_color": "#07070d",
+  "lang": "fa-IR",
+  "dir": "rtl",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
