@@ -1,8 +1,22 @@
 User-agent: *
 Allow: /
 
-# Block internal
-Disallow: /assets/private/
-Disallow: /admin/
+# دسترسی به ربات‌های گوگل
+User-agent: Googlebot
+Allow: /
 
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# مسدود کردن مسیرهای خصوصی
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+Disallow: /*?s=
+Disallow: /*?utm_
+
+# معرفی Sitemap
 Sitemap: https://adwerto.ir/sitemap.xml

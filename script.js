@@ -6,8 +6,17 @@
   'use strict';
 
   const html = document.documentElement;
-  const root = document.body;
 
+  /* =========================================================
+     Digit Helpers
+     ========================================================= */
+  const FA_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
+  const toFaDigits = (s) => String(s).replace(/\d/g, (d) => FA_DIGITS[+d]);
+  const toEnDigits = (s) => String(s).replace(/[۰-۹]/g, (d) => String(FA_DIGITS.indexOf(d)));
+  
+  /* تبدیل رقم‌های موجود در یک رشته به فرمت زبان مقصد */
+  const convertDigits = (str, lang) => lang === 'fa' ? toFaDigits(str) : toEnDigits(str);
+  
   /* =========================================================
      1) THEME (Dark / Light)
      ========================================================= */
@@ -21,7 +30,6 @@
     if (meta) meta.setAttribute('content', theme === 'dark' ? '#07070d' : '#fbfbfe');
   };
 
-  // init
   applyTheme(getSavedTheme() || 'dark');
 
   themeToggle?.addEventListener('click', () => {
@@ -37,7 +45,6 @@
   const langLabel = document.getElementById('langLabel');
   const LANG_KEY = 'adwerto_lang';
 
-  // translations
   const I18N = {
     fa: {
       'nav.home': 'خانه',
@@ -59,7 +66,6 @@
       'hero.hours': 'ساعت',
       'hero.minutes': 'دقیقه',
       'hero.seconds': 'ثانیه',
-      'hero.imageHint': 'تصویر سایت را اینجا قرار دهید',
       'hero.float1': '+۲۴۸٪ بازدید',
       'hero.float2': '۱۲۴ کمپین فعال',
 
@@ -87,10 +93,13 @@
       'how.eyebrow': 'فرآیند کار',
       'how.title': 'فقط در ۳ قدم ساده',
       'how.desc': 'بدون پیچیدگی، بدون واسطه.',
+      'how.s1.num': '۰۱',
       'how.s1.title': 'ثبت درخواست',
       'how.s1.text': 'بودجه، حوزه و هدف تبلیغاتی خود را مشخص کنید.',
+      'how.s2.num': '۰۲',
       'how.s2.title': 'انتخاب پیج مناسب',
       'how.s2.text': 'پیشنهادهای هوشمند Adwerto را بررسی کنید.',
+      'how.s3.num': '۰۳',
       'how.s3.title': 'انتشار و گزارش',
       'how.s3.text': 'تبلیغ منتشر و آمار زنده در داشبورد نمایش داده می‌شود.',
 
@@ -145,6 +154,8 @@
       'cta.button': 'اطلاع بده',
       'cta.success': '✓ ثبت شد! به‌زودی خبرهای خوبی دریافت می‌کنید.',
       'cta.error': 'لطفاً یک ایمیل معتبر وارد کنید.',
+      'cta.phone': '۰۹۲۰۴۰۰۰۲۹۸',
+      'cta.call': 'تماس با ما',
 
       'footer.desc': 'پلتفرم هوشمند تبلیغات دیجیتال — اتصال تبلیغ‌دهندگان به بهترین فضاهای تبلیغاتی ایران.',
       'footer.links': 'دسترسی سریع',
@@ -200,7 +211,6 @@
       'hero.hours': 'Hours',
       'hero.minutes': 'Minutes',
       'hero.seconds': 'Seconds',
-      'hero.imageHint': 'Place your website image here',
       'hero.float1': '+248% visits',
       'hero.float2': '124 active campaigns',
 
@@ -228,10 +238,13 @@
       'how.eyebrow': 'Process',
       'how.title': 'Just 3 simple steps',
       'how.desc': 'No complexity, no middleman.',
+      'how.s1.num': '01',
       'how.s1.title': 'Submit request',
       'how.s1.text': 'Define your budget, niche and advertising goal.',
+      'how.s2.num': '02',
       'how.s2.title': 'Pick the right page',
       'how.s2.text': 'Review Adwerto\u2019s smart recommendations.',
+      'how.s3.num': '03',
       'how.s3.title': 'Publish & report',
       'how.s3.text': 'Your ad goes live and real-time stats show in your dashboard.',
 
@@ -286,6 +299,8 @@
       'cta.button': 'Notify me',
       'cta.success': '\u2713 Done! You\u2019ll hear from us soon.',
       'cta.error': 'Please enter a valid email.',
+      'cta.phone': '09204000298',
+      'cta.call': 'Call us',
 
       'footer.desc': 'Smart digital advertising platform — connecting advertisers to the best ad spaces in Iran.',
       'footer.links': 'Quick links',
@@ -323,29 +338,44 @@
     }
   };
 
+  // Update footer year with correct digit format
+  const updateYear = (lang) => {
+    const yearEl = document.getElementById('year');
+    if (!yearEl) return;
+    const y = String(new Date().getFullYear());
+    yearEl.textContent = lang === 'fa' ? toFaDigits(y) : y;
+  };
+
+  // Re-render already-animated counters with new digit format
+  const reRenderCounters = (lang) => {
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    if (el.dataset.animated !== '1') return;
+    const target = parseInt(el.getAttribute('data-count'), 10) || 0;
+    const suffix = el.getAttribute('data-suffix') || '';
+    const num = lang === 'fa' ? toFaDigits(target) : String(target);
+    const suf = convertDigits(suffix, lang);   // ← suffix هم تبدیل می‌شود
+    el.textContent = num + suf;
+  });
+};
+
   const applyLang = (lang) => {
     const dict = I18N[lang] || I18N.fa;
 
-    // html attributes
     html.setAttribute('lang', lang);
     html.setAttribute('dir', lang === 'fa' ? 'rtl' : 'ltr');
 
-    // toggle button label
     if (langLabel) langLabel.textContent = lang === 'fa' ? 'EN' : 'فا';
 
-    // translate [data-i18n] text nodes
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const key = el.getAttribute('data-i18n');
       if (dict[key] !== undefined) el.textContent = dict[key];
     });
 
-    // translate placeholders
     document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
       const key = el.getAttribute('data-i18n-placeholder');
       if (dict[key] !== undefined) el.setAttribute('placeholder', dict[key]);
     });
 
-    // update page title + description dynamically
     if (lang === 'fa') {
       document.title = 'Adwerto | پلتفرم تبلیغات دیجیتال و بازاریابی آنلاین';
       document.querySelector('meta[name="description"]')
@@ -355,9 +385,11 @@
       document.querySelector('meta[name="description"]')
         ?.setAttribute('content', 'Smart marketplace for buying and selling ad space on social media and websites.');
     }
+
+    updateYear(lang);
+    reRenderCounters(lang);
   };
 
-  // init language
   const savedLang = localStorage.getItem(LANG_KEY) || 'fa';
   applyLang(savedLang);
 
@@ -365,6 +397,7 @@
     const next = html.getAttribute('lang') === 'fa' ? 'en' : 'fa';
     applyLang(next);
     localStorage.setItem(LANG_KEY, next);
+    renderCountdown();
   });
 
   /* =========================================================
@@ -377,21 +410,16 @@
     seconds: document.getElementById('cd-seconds')
   };
 
-  // Set target: 2 months from first visit (persisted)
   const LAUNCH_KEY = 'adwerto_launch_at';
   let launchAt = parseInt(localStorage.getItem(LAUNCH_KEY) || '0', 10);
   if (!launchAt || launchAt < Date.now()) {
-    launchAt = Date.now() + (60 * 24 * 60 * 60 * 1000); // 60 days
+    launchAt = Date.now() + (60 * 24 * 60 * 60 * 1000);
     localStorage.setItem(LAUNCH_KEY, launchAt.toString());
   }
 
-  const toPersianDigit = (n) => {
-    const fa = '۰۱۲۳۴۵۶۷۸۹';
-    return String(n).padStart(2, '0').replace(/\d/g, (d) => fa[d]);
-  };
   const pad = (n) => String(n).padStart(2, '0');
 
-  const renderCountdown = () => {
+  function renderCountdown() {
     const now = Date.now();
     const diff = Math.max(0, launchAt - now);
 
@@ -401,19 +429,16 @@
     const s = Math.floor((diff % 60000) / 1000);
 
     const isFa = html.getAttribute('lang') === 'fa';
-    const fmt = (v) => (isFa ? toPersianDigit(v) : pad(v));
+    const fmt = (v) => (isFa ? toFaDigits(pad(v)) : pad(v));
 
     if (cd.days) cd.days.textContent = fmt(d);
     if (cd.hours) cd.hours.textContent = fmt(h);
     if (cd.minutes) cd.minutes.textContent = fmt(m);
     if (cd.seconds) cd.seconds.textContent = fmt(s);
-  };
+  }
 
   renderCountdown();
   setInterval(renderCountdown, 1000);
-
-  // re-render countdown digits on language change
-  langToggle?.addEventListener('click', renderCountdown);
 
   /* =========================================================
      4) REVEAL ON SCROLL
@@ -438,30 +463,34 @@
      5) COUNTER ANIMATION (stats)
      ========================================================= */
   const counters = document.querySelectorAll('[data-count]');
-  const formatNum = (n, isFa) => {
-    const s = String(Math.floor(n));
-    if (!isFa) return s;
-    const fa = '۰۱۲۳۴۵۶۷۸۹';
-    return s.replace(/\d/g, (d) => fa[d]);
-  };
 
   const animateCounter = (el) => {
-    const target = parseInt(el.getAttribute('data-count'), 10) || 0;
-    const suffix = el.getAttribute('data-suffix') || '';
-    const isFa = html.getAttribute('lang') === 'fa';
-    const duration = 1800;
-    const start = performance.now();
+  if (el.dataset.animated === '1') return;
+  el.dataset.animated = '1';
 
-    const tick = (now) => {
-      const p = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      const val = target * eased;
-      el.textContent = formatNum(val, isFa) + suffix;
-      if (p < 1) requestAnimationFrame(tick);
-      else el.textContent = formatNum(target, isFa) + suffix;
-    };
-    requestAnimationFrame(tick);
+  const target = parseInt(el.getAttribute('data-count'), 10) || 0;
+  const suffix = el.getAttribute('data-suffix') || '';
+  const isFa = html.getAttribute('lang') === 'fa';
+  const lang = isFa ? 'fa' : 'en';
+  const duration = 1800;
+  const start = performance.now();
+
+  const fmt = (n) => {
+    const v = Math.floor(n);
+    const num = isFa ? toFaDigits(v) : String(v);
+    const suf = convertDigits(suffix, lang);   // ← suffix هم تبدیل می‌شود
+    return num + suf;
   };
+
+  const tick = (now) => {
+    const p = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(target * eased);
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = fmt(target);
+  };
+  requestAnimationFrame(tick);
+};
 
   if ('IntersectionObserver' in window) {
     const co = new IntersectionObserver((entries) => {
@@ -471,8 +500,19 @@
           co.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.4 });
+    }, { threshold: 0.3, rootMargin: '0px 0px -40px 0px' });
     counters.forEach((c) => co.observe(c));
+
+    setTimeout(() => {
+      counters.forEach((c) => {
+        const rect = c.getBoundingClientRect();
+        if (rect.top < window.innerHeight && !c.dataset.animated) {
+          animateCounter(c);
+        }
+      });
+    }, 2500);
+  } else {
+    counters.forEach(animateCounter);
   }
 
   /* =========================================================
@@ -524,13 +564,11 @@
       return;
     }
 
-    // simulate request
     msg.textContent = I18N[lang]['cta.success'];
     msg.classList.remove('is-error');
     msg.classList.add('is-success');
     form.reset();
 
-    // store locally (replace with real API later)
     try {
       const list = JSON.parse(localStorage.getItem('adwerto_waitlist') || '[]');
       list.push({ email: value, at: Date.now() });
@@ -539,7 +577,7 @@
   });
 
   /* =========================================================
-     9) MODALS (Privacy / Terms)
+     9) MODALS
      ========================================================= */
   const openModal = (id) => {
     const m = document.getElementById(id);
@@ -574,9 +612,8 @@
   });
 
   /* =========================================================
-     10) FOOTER YEAR
+     10) FOOTER YEAR (initial — lang-aware)
      ========================================================= */
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  updateYear(html.getAttribute('lang') || 'fa');
 
 })();
